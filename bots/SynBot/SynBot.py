@@ -2,26 +2,12 @@
 # -*- coding: utf-8 -*-
 #
 # Simple Bot to reply to Telegram messages
-# This program is dedicated to the public domain under the CC0 license.
-
-"""
-This Bot uses the Updater class to handle the bot.
-
-First, a few handler functions are defined. Then, those functions are passed to
-the Dispatcher and registered at their respective places.
-Then, the bot is started and runs until we press Ctrl-C on the command line.
-
-Usage:
-Basic Echobot example, repeats messages.
-Press Ctrl-C on the command line or send a signal to the process to stop the
-bot.
-"""
 
 from telegram.ext import Updater
 import logging
 import os
 from nltk.corpus import wordnet as wn
-
+from lib.wn import *  
 
 # Enable logging
 logging.basicConfig(
@@ -46,20 +32,26 @@ def echo(bot, update):
 
 def reply(bot, update):
     # get word
-    word = update.message.text
+    word = update.message.text.lower()
+    print 'Message : ',word
     ERROR_STR = 'Only a meaningful WORD is accepted!'
     if ' ' not in word:
-        print 'Message : ',word
         synms = wn.synsets(word)
         if synms:
             reply_msg = synms[0].definition()
-            print 'Reply : ',reply
+            print 'Reply : ',reply_msg
             bot.sendMessage(update.message.chat_id, text=reply_msg)
         else:
             bot.sendMessage(update.message.chat_id, text=ERROR_STR)
     else:
-        bot.sendMessage(update.message.chat_id, text=ERROR_STR)
-
+        words = word.split(' ')
+        if len(words) == 2 and words[0] == 'like':
+            synonyms =  synonymsOf(synsets(words[1]))[1:]
+            reply_msg = ', '.join(synonyms)
+            print 'Reply : ',reply_msg
+            bot.sendMessage(update.message.chat_id, text=reply_msg)
+        else:
+            bot.sendMessage(update.message.chat_id, text=ERROR_STR)
 
 
 def error(bot, update, error):
