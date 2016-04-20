@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 ERROR_STR = 'Only a meaningful WORD is accepted!'
 DUMB_STR  = 'I am too dumb to answer that!'
 
-Means, Syno, Anto, Eg = ('Meaning','Synonyms','Antonyms','Use in a sentence')
+Means, Syno, Anto, Eg = ('Meaning','Synonyms','Antonyms','Usage')
 
 # Define a few command handlers. These usually take the two arguments bot and
 # update. Error handlers also receive the raised TelegramError object in error.
@@ -43,7 +43,7 @@ def reply(bot, update):
     word = update.message.text
     print 'Message : ',word
 
-    if word == Means or word == Syno or word == Anto:
+    if word == Means or word == Syno or word == Anto or word == Eg:
         print 'Selected', word
         if word == Means:
             reply_msg = synsets(gWord)[0].definition()
@@ -51,8 +51,8 @@ def reply(bot, update):
             reply_msg = ', '.join(synonymsOf(synsets(gWord)))
         elif word == Anto:
             reply_msg = ', '.join(antonymsOf(synsets(gWord)))
-        else
-            reply_msg = wordEg(synsets(gWord))
+        else:
+            reply_msg = '\n'.join(wordEg(synsets(gWord)))
 
         if reply_msg:
             print 'Reply : ', reply_msg
@@ -62,7 +62,7 @@ def reply(bot, update):
             bot.sendMessage(update.message.chat_id, text='Something went wrong!')
     else:
         gWord = word
-        reply_markup = ReplyKeyboardMarkup([[Means, Syno, Anto]], one_time_keyboard=True)
+        reply_markup = ReplyKeyboardMarkup([[Means, Syno, Anto, Eg]], one_time_keyboard=True)
         bot.sendMessage(update.message.chat_id, text="What do you want?",reply_markup=reply_markup)
 
 

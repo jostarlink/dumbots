@@ -23,6 +23,10 @@ def antonymsOf(syns):
                 antonyms.append(lem.antonyms()[0].name())
     return antonyms
 
+def wordEg(syns):
+    print 'wordEg : ',syns[0].examples()
+    return syns[0].examples()
+
 
 #print good, good[0],type(good[0])
 #anto =  good[0].lemmas()[0].antonyms()[0].name()
@@ -36,6 +40,8 @@ def antonymsOf(syns):
 #for syn in syns:
 #print syns[0].lemmas()[0]
 #[0].antonyms()[0].name()
+
+#print wordEg(synsets('ugly'))
 
 
 '''
