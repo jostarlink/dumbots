@@ -4,10 +4,13 @@
 # Simple Bot to reply to Telegram messages
 
 from telegram.ext import Updater
+from telegram import ReplyKeyboardMarkup
 import logging
 import os
 from nltk.corpus import wordnet as wn
 from lib.wn import *  
+
+gWord = 'internet'
 
 # Enable logging
 logging.basicConfig(
@@ -18,6 +21,8 @@ logger = logging.getLogger(__name__)
 
 ERROR_STR = 'Only a meaningful WORD is accepted!'
 DUMB_STR  = 'I am too dumb to answer that!'
+
+Means, Syno, Anto, Eg = ('Meaning','Synonyms','Antonyms','Use in a sentence')
 
 # Define a few command handlers. These usually take the two arguments bot and
 # update. Error handlers also receive the raised TelegramError object in error.
@@ -33,9 +38,35 @@ def echo(bot, update):
     bot.sendMessage(update.message.chat_id, text=update.message.text)
 
 def reply(bot, update):
+    global gWord
     # get word
     word = update.message.text
     print 'Message : ',word
+
+    if word == Means or word == Syno or word == Anto:
+        print 'Selected', word
+        if word == Means:
+            reply_msg = synsets(gWord)[0].definition()
+        elif word == Syno:
+            reply_msg = ', '.join(synonymsOf(synsets(gWord)))
+        elif word == Anto:
+            reply_msg = ', '.join(antonymsOf(synsets(gWord)))
+        else
+            reply_msg = wordEg(synsets(gWord))
+
+        if reply_msg:
+            print 'Reply : ', reply_msg
+            bot.sendMessage(update.message.chat_id, text=reply_msg)
+        else:
+            print 'Reply : Something went wrong!'
+            bot.sendMessage(update.message.chat_id, text='Something went wrong!')
+    else:
+        gWord = word
+        reply_markup = ReplyKeyboardMarkup([[Means, Syno, Anto]], one_time_keyboard=True)
+        bot.sendMessage(update.message.chat_id, text="What do you want?",reply_markup=reply_markup)
+
+
+'''
     if ' ' not in word:
         synms = wn.synsets(word)
         if synms:
@@ -57,6 +88,7 @@ def reply(bot, update):
                 bot.sendMessage(update.message.chat_id, text=DUMB_STR)
         else:
             bot.sendMessage(update.message.chat_id, text=ERROR_STR)
+'''
 
 
 def error(bot, update, error):
