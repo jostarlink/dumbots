@@ -16,6 +16,8 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
+ERROR_STR = 'Only a meaningful WORD is accepted!'
+DUMB_STR  = 'I am too dumb to answer that!'
 
 # Define a few command handlers. These usually take the two arguments bot and
 # update. Error handlers also receive the raised TelegramError object in error.
@@ -32,9 +34,8 @@ def echo(bot, update):
 
 def reply(bot, update):
     # get word
-    word = update.message.text.lower()
+    word = update.message.text
     print 'Message : ',word
-    ERROR_STR = 'Only a meaningful WORD is accepted!'
     if ' ' not in word:
         synms = wn.synsets(word)
         if synms:
@@ -45,11 +46,15 @@ def reply(bot, update):
             bot.sendMessage(update.message.chat_id, text=ERROR_STR)
     else:
         words = word.split(' ')
-        if len(words) == 2 and words[0] == 'like':
-            synonyms =  synonymsOf(synsets(words[1]))[1:]
-            reply_msg = ', '.join(synonyms)
+        if len(words) == 2 and words[0].lower() == 'like':
+            synonyms =  synonymsOf(synsets(words[1]))
+            _synonyms = [y for y in synonyms if y != synonyms[0]]
+            reply_msg = ', '.join(_synonyms)
             print 'Reply : ',reply_msg
-            bot.sendMessage(update.message.chat_id, text=reply_msg)
+            if reply_msg:
+                bot.sendMessage(update.message.chat_id, text=reply_msg)
+            else:
+                bot.sendMessage(update.message.chat_id, text=DUMB_STR)
         else:
             bot.sendMessage(update.message.chat_id, text=ERROR_STR)
 
