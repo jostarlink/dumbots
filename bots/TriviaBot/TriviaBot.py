@@ -9,6 +9,7 @@ import logging
 import os
 #from lib.wn import *  
 import hickle as hkl
+from random import randint
 
 # Enable logging
 logging.basicConfig(
@@ -17,10 +18,14 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-zero,one, two, three, four,five = ('0','1','2','3','4','5')
+zero, one, two, three, four, five = ('0','1','2','3','4','5')
+reply_markup = ReplyKeyboardMarkup([[zero, one, two], [three, four, five]], one_time_keyboard=True)
 
-S,E = ('start', 'end')
+S,E,Q,K,M = ('start', 'end','stale','kid','meme')
 qnum = -1
+score = {}
+unames = []
+state = Q
 
 # load trivia
 trivia = hkl.load('data/tech.hkl')
@@ -29,7 +34,6 @@ trivia = hkl.load('data/tech.hkl')
 # update. Error handlers also receive the raised TelegramError object in error.
 def start(bot, update):
     bot.sendMessage(update.message.chat_id, text='Hi!')
-
 
 def help(bot, update):
     bot.sendMessage(update.message.chat_id, text='Help!')
@@ -41,41 +45,59 @@ def echo(bot, update):
 def reply(bot, update):
     global qnum
     global trivia
+    global score
+    global unames
+    global state
+    _score = 0
 
     # get message
     message = update.message.text
+    uname = update.message.from_user.username
+    fname = update.message.from_user.first_name
     print 'Message : ',message
+    print 'from : ',fname
     reply_msg = 'Something went wrong!'
+
+    if uname not in unames:
+        unames.append(uname)
+        score[uname] = 0
 
     if message == S:
         # start the trivia session
-        qnum = 0
+        state = S
     elif message == E:
-        qnum = -1
+        state = E
 
-    if qnum >= 0:
+    if state != Q:
         # send ques + choices here
-        if qnum == 0:
+        if state == S:
             #  Get Question
+            qnum = randint(0,len(trivia))
             reply_msg = trivia[qnum]['ques'] + '\n' + trivia[qnum]['choices']
-            reply_markup = ReplyKeyboardMarkup([[zero, one, two, three, four, five]], one_time_keyboard=True)
             bot.sendMessage(update.message.chat_id, text=reply_msg,reply_markup=reply_markup)
-            qnum += 1
+            state = K
+            #old_qnum = qnum
 
-        if message in ['0','1','2','3','4','5']:
-            if trivia[qnum-1]['ansnum'] == int(message):
-                reply_msg = 'Correct! ' + trivia[qnum-1]['ans'] + '!'
+        if message in ['0','1','2','3','4','5'] and state != S:
+            if trivia[qnum]['ansnum'] == int(message):
+                reply_msg = 'Correct ' + fname + '! ' + trivia[qnum]['ans'] + '.'
+                _score = 10
             else:
-                reply_msg = 'Wrong! ' + trivia[qnum-1]['ans'] + '!'
+                reply_msg = 'Wrong ' + fname + '! ' + trivia[qnum]['ans'] + '.'
+                _score = -5
+
+            for u in unames:
+                if u == uname:
+                    score[u] += _score
+                reply_msg += u + ' : ' + str(score[u]) + '\n'
+            #reply_msg += ', '.join(unames)
 
             bot.sendMessage(update.message.chat_id, text=reply_msg)
+
             # next question
+            qnum = randint(0,len(trivia))
             reply_msg = trivia[qnum]['ques'] + '\n' + trivia[qnum]['choices']
-            reply_markup = ReplyKeyboardMarkup([[zero, one, two, three, four, five]], one_time_keyboard=True)
             bot.sendMessage(update.message.chat_id, text=reply_msg,reply_markup=reply_markup)
-            qnum += 1
-
-
         
 
 '''
