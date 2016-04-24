@@ -46,18 +46,30 @@ def reply(bot, update):
     line = update.message.text
 
     linelist = line.split(" ")
-    if linelist[0] == "@loggedbot":
+    if status == "started" and linelist[0] != "@loggedbot":
+        uname = update.message.from_user.username
+        mdate = update.message.date
+        rmessage["uname"] = uname
+        rmessage["date"] = mdate
+        rmessage["message"] = line
+        print rmessage
+
+    elif linelist[0] == "@loggedbot" and linelist[1] != "end":
         category = linelist[1]
+        file = open("./log/"+category+".txt",'w')
         status = "started"
-        if linelist[1] == "end" and status == "started":
-            status = "ended"
+
+    elif linelist[0] == "@loggedbot" and linelist[1] == "end" and status == "started":
+        status = "ended"
+
+    elif linelist[0] == "@loggedbot" and linelist[1] == "end" and status == "ended":
+        print "No discussion to end"
+
+    else:
+        print "Exception ! Handle it"
 
 
 
-    if status == "started":
-        print "Date: ",update.message.date
-        print 'Message : ',line
-        print category
 
 
 
