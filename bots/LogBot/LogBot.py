@@ -16,7 +16,9 @@ logging.basicConfig(
         level=logging.INFO)
 
 logger = logging.getLogger(__name__)
-
+rmessage = {}
+category = ""
+status = ""
 ERROR_STR = 'Only a meaningful WORD is accepted!'
 DUMB_STR  = 'I am too dumb to answer that!'
 
@@ -37,11 +39,27 @@ def echo(bot, update):
 
 def reply(bot, update):
     global gWord
+    global message
+    global category
+    global status
     # get word
-    word = update.message.text
-    print 'Message : ',word
-    reply_msg = "hodor"
-    bot.sendMessage(update.message.chat_id, text=reply_msg)
+    line = update.message.text
+
+    linelist = line.split(" ")
+    if linelist[0] == "@loggedbot":
+        category = linelist[1]
+        status = "started"
+        if linelist[1] == "end" and status == "started":
+            status = "ended"
+
+
+
+    if status == "started":
+        print "Date: ",update.message.date
+        print 'Message : ',line
+        print category
+
+
 
 '''
     if word == Means or word == Syno or word == Anto or word == Eg:
@@ -75,7 +93,7 @@ def error(bot, update, error):
 
 def main():
     # Create the EventHandler and pass it your bot's token.
-    updater = Updater(os.environ['LOGBOT'])
+    updater = Updater(os.environ['LOG_BOT_TOKEN'])
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
