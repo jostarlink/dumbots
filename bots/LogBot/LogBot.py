@@ -57,6 +57,8 @@ def reply(bot, update):
     elif linelist[0] == "@loggedbot" and linelist[1] != "end":
         category = linelist[1]
         file = open("./log/"+category+".txt",'w')
+        titletime = str(update.message.date)
+        file.write(titletime)
         status = "started"
 
     elif linelist[0] == "@loggedbot" and linelist[1] == "end" and status == "started":
