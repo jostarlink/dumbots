@@ -19,6 +19,8 @@ logger = logging.getLogger(__name__)
 rmessage = {}
 category = ""
 status = ""
+filenameus=""
+counter = 0
 ERROR_STR = 'Only a meaningful WORD is accepted!'
 DUMB_STR  = 'I am too dumb to answer that!'
 
@@ -42,7 +44,8 @@ def reply(bot, update):
     global message
     global category
     global status
-    # get word
+    global filenameus
+    # get message line
     line = update.message.text
 
     linelist = line.split(" ")
@@ -53,12 +56,33 @@ def reply(bot, update):
         rmessage["date"] = mdate
         rmessage["message"] = line
         print rmessage
+        directory = update.message.chat.title
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        file = open("./"+directory+"/"+category+".txt",'a')
 
-    elif linelist[0] == "@loggedbot" and linelist[1] != "end":
-        category = linelist[1]
-        file = open("./log/"+category+".txt",'w')
+        file.write("[ "+str(rmessage["date"])+" ]"+str(rmessage["uname"])+" : "+rmessage["message"])
+        file.write("\n")
+        file.close()
+
+    elif linelist[0] == "@loggedbot" and linelist[1] != "end" and status != "started":
+        filenameus = ""
+        for l in linelist[1:len(linelist)]:
+            filenameus += l+"_"
+
+        n=len(filenameus)
+        filenameus=filenameus[:-1]
+        category = filenameus
+        directory = update.message.chat.title
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        file = open("./"+directory+"/"+category+".txt",'a')
         titletime = str(update.message.date)
-        file.write(titletime)
+        file.write("\n"+"----------"+titletime+"----------- \n")
+        file.close()
+        reply_msg = " I will start the log of "+category+" discussion "+str(update.message.chat.title)
+        bot.sendMessage(update.message.chat_id, text=reply_msg)
+
         status = "started"
 
     elif linelist[0] == "@loggedbot" and linelist[1] == "end" and status == "started":
@@ -68,7 +92,21 @@ def reply(bot, update):
         print "No discussion to end"
 
     else:
-        print "Exception ! Handle it"
+        uname = update.message.from_user.username
+        mdate = update.message.date
+        rmessage["uname"] = uname
+        rmessage["date"] = mdate
+        rmessage["message"] = line
+        print rmessage
+        directory = update.message.chat.title
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        file = open("./"+directory+"/general.txt",'a')
+
+        file.write("[ "+str(rmessage["date"])+" ]"+str(rmessage["uname"])+" : "+rmessage["message"])
+        file.write("\n")
+        file.close()
+
 
 
 
