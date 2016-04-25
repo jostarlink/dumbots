@@ -17,7 +17,11 @@ logging.basicConfig(
         level=logging.INFO)
 
 logger = logging.getLogger(__name__)
-
+rmessage = {}
+category = ""
+status = ""
+filenameus=""
+counter = 0
 ERROR_STR = 'Only a meaningful WORD is accepted!'
 DUMB_STR  = 'I am too dumb to answer that!'
 
@@ -38,11 +42,77 @@ def echo(bot, update):
 
 def reply(bot, update):
     global gWord
-    # get word
-    word = update.message.text
-    print 'Message : ',word
-    reply_msg = "hodor"
-    bot.sendMessage(update.message.chat_id, text=reply_msg)
+    global message
+    global category
+    global status
+    global filenameus
+    # get message line
+    line = update.message.text
+
+    linelist = line.split(" ")
+    if status == "started" and linelist[0] != "@loggedbot":
+        uname = update.message.from_user.username
+        mdate = update.message.date
+        rmessage["uname"] = uname
+        rmessage["date"] = mdate
+        rmessage["message"] = line
+        print rmessage
+        directory = update.message.chat.title
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        file = open("./"+directory+"/"+category+".txt",'a')
+
+        file.write("[ "+str(rmessage["date"])+" ]"+str(rmessage["uname"])+" : "+rmessage["message"])
+        file.write("\n")
+        file.close()
+
+    elif linelist[0] == "@loggedbot" and linelist[1] != "end" and status != "started":
+        filenameus = ""
+        for l in linelist[1:len(linelist)]:
+            filenameus += l+"_"
+
+        n=len(filenameus)
+        filenameus=filenameus[:-1]
+        category = filenameus
+        directory = update.message.chat.title
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        file = open("./"+directory+"/"+category+".txt",'a')
+        titletime = str(update.message.date)
+        file.write("\n"+"----------"+titletime+"----------- \n")
+        file.close()
+        reply_msg = " I will start the log of "+category+" discussion "+str(update.message.chat.title)
+        bot.sendMessage(update.message.chat_id, text=reply_msg)
+
+        status = "started"
+
+    elif linelist[0] == "@loggedbot" and linelist[1] == "end" and status == "started":
+        status = "ended"
+
+    elif linelist[0] == "@loggedbot" and linelist[1] == "end" and status == "ended":
+        print "No discussion to end"
+
+    else:
+        uname = update.message.from_user.username
+        mdate = update.message.date
+        rmessage["uname"] = uname
+        rmessage["date"] = mdate
+        rmessage["message"] = line
+        print rmessage
+        directory = update.message.chat.title
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        file = open("./"+directory+"/general.txt",'a')
+
+        file.write("[ "+str(rmessage["date"])+" ]"+str(rmessage["uname"])+" : "+rmessage["message"])
+        file.write("\n")
+        file.close()
+
+
+
+
+
+
 
 '''
     if word == Means or word == Syno or word == Anto or word == Eg:
@@ -76,7 +146,7 @@ def error(bot, update, error):
 
 def main():
     # Create the EventHandler and pass it your bot's token.
-    updater = Updater(os.environ['LOGBOT'])
+    updater = Updater(os.environ['LOG_BOT_TOKEN'])
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
