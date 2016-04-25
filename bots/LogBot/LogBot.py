@@ -3,7 +3,8 @@
 #
 # Simple Bot to reply to Telegram messages
 
-from telegram.ext import Updater
+from telegram.ext import Updater,MessageHandler,CommandHandler,filters
+
 from telegram import ReplyKeyboardMarkup
 import logging
 import os
@@ -81,11 +82,12 @@ def main():
     dp = updater.dispatcher
 
     # on different commands - answer in Telegram
-    dp.addTelegramCommandHandler("start", start)
-    dp.addTelegramCommandHandler("help", help)
+    dp.addHandler(CommandHandler("start", start))
+    dp.addHandler(CommandHandler("help", help))
+
 
     # on noncommand i.e message - echo the message on Telegram
-    dp.addTelegramMessageHandler(reply)
+    dp.addHandler(MessageHandler([filters.TEXT],reply))
 
     # log all errors
     dp.addErrorHandler(error)
