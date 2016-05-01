@@ -32,4 +32,4 @@ Facing problems? Need more features? Welcome to Issues. Bitch bout it [here](htt
 
 ## Licence : GPL v3
 
-The GPL is a copyleft license, which means that derived works can only be distributed under the same license terms. http://www.gnu.org/licenses/gpl-3.0.en.html](More).
+The GPL is a copyleft license, which means that derived works can only be distributed under the same license terms. [http://www.gnu.org/licenses/gpl-3.0.en.html](More).
