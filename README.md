@@ -10,7 +10,7 @@ A list of dumb bots for experimentation, hooked via telegram.
 ### Installing Dependencies
 
 --The bots use `python-telegram-bot` wrapper to process the messages from telegram . Install `python-telegram-bot` wrapper from
-[https://github.com/python-telegram-bot/python-telegram-bot/] . You can either use pip or build from the code .
+[here](https://github.com/python-telegram-bot/python-telegram-bot/) . You can either use pip or build from the code .
 
 
 ###Setting up the API TOKEN
